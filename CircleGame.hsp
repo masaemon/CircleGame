@@ -1,0 +1,87 @@
+randomize
+screen 0, 500, 300
+
+//スコア
+score = 0
+
+//自分のキャラクターの座標
+playerX = 100
+playerY = 200
+r = 20
+g = 0.0
+
+//敵の座標
+enemyX = 600
+enemyY = -100*rnd(2) + 200
+
+//*start
+	
+
+*init
+	//初期化
+	enemyX = 600
+	enemyY = -100*rnd(2) + 200
+	score = 0
+	goto *main
+
+*main 
+	//キーボードの変数
+	stick key,16
+	
+	redraw 0
+	color
+	boxf
+	color 255, 255, 255
+	pos 0, 50
+	mes "score: " + score
+
+	//白い横線を引く
+	color 255, 255, 255
+	line 0, 220, 600, 220
+
+	//プレイヤーの描画
+	if (jump = 0 & key=16) : jump = 1 : g = -5.0
+	if(jump = 1) {
+		playerY += g
+		g += 0.1
+	}
+	if(playerY > 200) {
+		playerY = 200.0
+		jump = 0
+	}
+	color 255, 255, 255
+	circle playerX - r, playerY - r, playerX + r, playerY + r, 1
+
+	//敵の表示と移動
+	color 255, 0, 0
+	circle enemyX - r, enemyY - r, enemyX + r, enemyY + r, 1
+	enemyX -= 3
+	if(enemyX + r) < 0 {
+		score += 100
+		enemyX = 600
+		enemyY = -100 * rnd(2) + 200
+	}
+
+	if(sqrt((enemyY - playerY)*(enemyY - playerY) + (enemyX - playerX)*(enemyX - playerX)) < 40){
+		goto *gameover
+	}
+	
+	redraw
+	await 5
+	goto *main
+
+//ゲームオーバー
+*gameover
+	redraw 0
+	stick gkey,32
+	color
+	boxf
+	pos 200, 100
+	color 255, 255, 255
+	mes"Game Over"
+	pos 135, 200
+	mes "Press Enter Key to Restart"
+	if(gkey=32): goto*init
+	redraw 
+	await 5
+	goto *gameover
